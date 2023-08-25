@@ -1,5 +1,6 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const bodyParser = require('body-parser');
 const hbs = require("hbs");
 const app = express();
 
@@ -13,6 +14,7 @@ hbs.registerPartials(__dirname + "/views/partials"); //tell HBS which directory 
 
 app.use(express.static('public')); // Make everything inside of public/ available
 
+app.use(bodyParser.urlencoded({ extended: true }));
 
 
 // Connect to DB
@@ -73,6 +75,15 @@ app.get("/pizzas/:pizzaName", (req, res, next) => {
         .catch(e => console.log("Error getting pizza details from DB", e))
 });
 
+
+
+app.post("/login", (req, res, next) => {
+    if (req.body.pwd === "ilovepizza") {
+        res.send("welcome");
+    } else {
+        res.send("sorry, we don't like you");
+    }
+})
 
 
 app.listen(3000, () => console.log('My first app listening on port 3000! '));
