@@ -38,6 +38,30 @@ app.get("/contact", (req, res, next) => {
 
 
 
+app.get("/pizzas", (req, res, next) => {
+
+    let maxPrice = req.query.maxPrice;
+    maxPrice = Number(maxPrice); //convert to a number
+
+    let filter = {};
+    if(maxPrice) {
+        filter = {price: {$lte: maxPrice}}
+    }
+
+    Pizza.find(filter)
+        .then( pizzasArr => {
+
+            const data = {
+                listOfPizzas: pizzasArr
+            }
+
+            res.render("product-list", data)
+        })
+        .catch(e => console.log("Error getting list of pizzas from DB", e))
+});
+
+
+
 app.get("/pizzas/:pizzaName", (req, res, next) => {
 
     const nameOfThePizza = req.params.pizzaName;
