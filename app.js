@@ -1,6 +1,9 @@
 const express = require("express");
+const mongoose = require("mongoose");
 const hbs = require("hbs");
 const app = express();
+
+const Pizza = require("./models/Pizza.model");
 
 
 app.set("views", __dirname + "/views"); //tells our Express app where to look for our views
@@ -11,6 +14,16 @@ hbs.registerPartials(__dirname + "/views/partials"); //tell HBS which directory 
 app.use(express.static('public')); // Make everything inside of public/ available
 
 
+
+// Connect to DB
+mongoose
+    .connect('mongodb://127.0.0.1:27017/pizza-restaurant')
+    .then(x => {
+        console.log(`Connected! Database name: "${x.connections[0].name}"`);
+    })
+    .catch(err => console.error('Error... ', err));
+
+    
 
 // Home Page
 app.get("/", (req, res, next) => {
@@ -24,67 +37,17 @@ app.get("/contact", (req, res, next) => {
 })
 
 
-app.get("/pizzas/margarita", (req, res, next) => {
 
-    const dataMargarita = {
-        title: 'Pizza Margarita',
-        price: 12,
-        recommendedDrink: 'beer',
-        imageFile: 'pizza-margarita.jpg',
-        ingredients: [
-            {
-                ingredientName: "mozzarella",
-                calories: 400
-            },
-            {
-                ingredientName: "tomato sauce",
-                calories: 200
-            },
-            {
-                ingredientName: "basilicum",
-                calories: 30
-            },
-          ],
-    };
+app.get("/pizzas/:pizzaName", (req, res, next) => {
 
-    res.render("product", dataMargarita)
-})
-
-
-app.get("/pizzas/veggie", (req, res, next) => {
-    const dataVeggie = {
-        title: 'Veggie Pizza',
-        price: 15,
-        recommendedDrink: 'power smoothie',
-        imageFile: 'pizza-veggie.jpg',
-        ingredients: [
-            {
-                ingredientName: "cherry tomatoes",
-                calories: 80
-            },
-            {
-                ingredientName: "basilicum",
-                calories: 30
-            },
-            {
-                ingredientName: "olives",
-                calories: 300
-            },
-          ],
-    };
-    res.render("product", dataVeggie);
-})
-
-
-app.get("/pizzas/seafood", (req, res, next) => {
-    const dataSeafood = {
-        title: 'Seafood Pizza',
-        recommendedDrink: 'white wine',
-        imageFile: 'pizza-seafood.jpg',
-    };
-      
-    res.render("product", dataSeafood);
-})
+    const nameOfThePizza = req.params.pizzaName;
+    
+    Pizza.findOne({title: nameOfThePizza})
+        .then( pizzaDetails => {
+            res.render("product", pizzaDetails);
+        })
+        .catch(e => console.log("Error getting pizza details from DB", e))
+});
 
 
 
